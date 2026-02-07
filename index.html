@@ -42,7 +42,11 @@ input {
 // ==========================
 const term = document.getElementById("terminal");
 const input = document.getElementById("cmd");
-
+// ==========================
+// 打字音效
+// ==========================
+const typeSound = new Audio("type.mp3");
+typeSound.volume = 0.15; // 音量（0~1）
 
 // ==========================
 // 使用者帳號資料庫（之後可以一直加）
@@ -74,8 +78,9 @@ let currentUser = null;
 // ==========================
 // 打字輸出（支援延遲）
 // ==========================
-function printLine(text, delay=100){
+function printLine(text, delay=40){
   return new Promise(resolve=>{
+
     let i = 0;
 
     let timer = setInterval(()=>{
@@ -83,9 +88,12 @@ function printLine(text, delay=100){
       term.innerHTML += text[i];
       term.scrollTop = term.scrollHeight;
 
+      // 每打一次字就播聲音
+      typeSound.currentTime = 0;
+      typeSound.play().catch(()=>{});
+
       i++;
 
-      // 打完就停
       if(i >= text.length){
         clearInterval(timer);
         term.innerHTML += "<br>";
@@ -93,6 +101,7 @@ function printLine(text, delay=100){
       }
 
     }, delay);
+
   });
 }
 
@@ -341,7 +350,6 @@ function logout(){
 
   printLines([
     "用戶已登出",
-    "Type: login <username>",
     ""
   ],30);
 
