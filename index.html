@@ -76,7 +76,7 @@ function playTypeSound(){
 const accounts = {
   "y3l_cu._":{ password:"pride", role:"腳本" },
   "shield.of.hervia":{ password:"order", role:"插件" },
-  "normal.akari":{ password:"lust", role:"已丟失插件" },
+  "normal.akari":{ password:"lust", role:"插件已損毀" },
   "glitch":{ password:"envy", role:"未知" }
 };
 
@@ -227,7 +227,7 @@ async function login(cmd){
 async function showHelp(){
   if(currentUser.role==="腳本") await printLine("help whoami log status logout");
   if(currentUser.role==="插件") await printLine("help whoami status logout");
-  if(currentUser.role==="已丟失插件") await printLine("help whoami status logout");
+  if(currentUser.role==="插件已損毀") await printLine("help whoami status logout");
   if(currentUser.role==="未知") await printLine("help whoami log status glitch logout");
 }
 
@@ -245,7 +245,7 @@ async function whoami(){
 // log
 // ==========================
 async function showLog(){
-  if(!["腳本","已丟失插件","未知"].includes(currentUser.role)){
+  if(!["腳本","未知"].includes(currentUser.role)){
     await printLine("權限不足"); return;
   }
   await printLines([
