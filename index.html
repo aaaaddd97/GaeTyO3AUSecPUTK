@@ -146,24 +146,33 @@ boot();
 // ==========================
 // Enter鍵送出指令
 // ==========================
-input.addEventListener("keydown", e=>{
+nput.addEventListener("keydown", e=>{
+
+  // 每次按鍵都播放音效（不含 Shift / Ctrl）
+  if(
+    e.key.length === 1  
+    e.key === "Backspace" 
+    e.key === "Enter"
+  ){
+    typeSound.currentTime = 0;
+    typeSound.play().catch(()=>{});
+  }
 
   if(e.key === "Enter"){
 
     const cmd = input.value.trim();
-
     input.value = "";
 
     if(cmd){
       printLine("> " + cmd, 0);
       handle(cmd);
     }
-
   }
-
 });
 
-
+document.addEventListener("click", ()=>{
+  typeSound.play().catch(()=>{});
+});
 // ==========================
 // 指令處理中心（所有指令都走這）
 // ==========================
