@@ -146,28 +146,36 @@ boot();
 // ==========================
 // Enter鍵送出指令
 // ==========================
-nput.addEventListener("keydown", e=>{
+nput.addEventListener("keydown", e => {
 
-  // 每次按鍵都播放音效（不含 Shift / Ctrl）
-  if(
-    e.key.length === 1  ||
-    e.key === "Backspace" ||
+  // === 播放打字聲（不影響流程）===
+  if (
+    e.key.length === 1 ||
+    e.key === "Backspace" || 
     e.key === "Enter"
-  ){
-    typeSound.currentTime = 0;
-    typeSound.play().catch(()=>{});
+  ) {
+
+    // 用 cloneNode 避免卡住原音源
+    const s = typeSound.cloneNode();
+    s.volume = 0.15;
+    s.play().catch(()=>{});
   }
 
-  if(e.key === "Enter"){
+
+  // === Enter送出指令 ===
+  if (e.key === "Enter") {
+
+    e.preventDefault(); // 防止奇怪行為（重要）
 
     const cmd = input.value.trim();
     input.value = "";
 
-    if(cmd){
+    if (cmd) {
       printLine("> " + cmd, 0);
       handle(cmd);
     }
   }
+
 });
 // ==========================
 // 指令處理中心（所有指令都走這）
