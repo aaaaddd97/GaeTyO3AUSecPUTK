@@ -111,13 +111,14 @@ async function printLines(lines, delay=40){
 // 開機動畫
 // ==========================
 const bootLines = [
-  "Booting Residual Terminal...",
-  "Loading memory modules...",
-  "Recovering cache...",
-  "Residual activity detected...",
-  "System ready.",
-  "",
-  "Type: login <username>",
+  "正在啟動殘留終端機...",
+  "正在載入記憶體模組...",
+  "正在恢復快取...",
+  "偵測到殘留活動...",
+  "正在初始化使用者介面...",
+  "系統已準備就緒.",
+  "使用者：未知",
+  "輸入help獲取指令列表",
   ""
 ];
 
@@ -163,7 +164,7 @@ function handle(cmd){
 
   // 如果還沒登入
   if(!currentUser && !cmd.startsWith("login")){
-    printLine("Please login first.", 30);
+    printLine("請先登入", 30);
     return;
   }
 
@@ -197,7 +198,7 @@ function handle(cmd){
       break;
 
     default:
-      printLine("Unknown command", 30);
+      printLine("未知指令", 30);
   }
 }
 
