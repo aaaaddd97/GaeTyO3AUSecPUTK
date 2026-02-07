@@ -43,13 +43,23 @@ const input = document.getElementById("cmd");
 
 
 // ==========================
-// 音效系統（穩定版）
+// 多音效系統
 // ==========================
 let soundUnlocked = false;
 
-const typeSound = new Audio("type.mp3");
-typeSound.volume = 0.15;
+// 建立音效池
+const typeSounds = [
+  new Audio("type1.mp3"),
+  new Audio("type2.mp3"),
+  new Audio("type3.mp3"),
+  new Audio("type4.mp3"),
+  new Audio("type5.mp3")
+];
 
+// 統一音量
+typeSounds.forEach(s=>{
+  s.volume = 0.15;
+});
 
 // 解鎖聲音（一定要）
 document.addEventListener("click", unlockSound, { once:true });
@@ -59,11 +69,17 @@ function unlockSound(){
 
   if(soundUnlocked) return;
 
-  typeSound.play().then(()=>{
-    typeSound.pause();
-    typeSound.currentTime = 0;
+  // 解鎖所有音效
+  Promise.all(
+    typeSounds.map(s=>s.play().then(()=>{
+      s.pause();
+      s.currentTime = 0;
+    }).catch(()=>{}))
+  ).then(()=>{
+
     soundUnlocked = true;
-  }).catch(()=>{});
+
+  });
 
 }
 
@@ -73,10 +89,15 @@ function playTypeSound(){
 
   if(!soundUnlocked) return;
 
-  typeSound.currentTime = 0;
-  typeSound.play().catch(()=>{});
-}
+  // 隨機選一個音效
+  const s = typeSounds[
+    Math.floor(Math.random()*typeSounds.length)
+  ];
 
+  s.currentTime = 0;
+  s.play().catch(()=>{});
+
+}
 
 // ==========================
 // 帳號
