@@ -164,8 +164,9 @@ function handle(cmd){
 
   // 如果還沒登入
   if(!currentUser && !cmd.startsWith("login")){
-    printLine("請先登入", 40);
-    printLine("使用login 用戶名 進行登錄", 30);
+    printLine("請先登入", 30);
+    await printLine("使用login 用戶名 進行登錄", 30);
+  
     return;
   }
 
