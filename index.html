@@ -40,9 +40,6 @@ input {
 // ==========================
 const term = document.getElementById("terminal");
 const input = document.getElementById("cmd");
-  
-// 系統忙碌鎖
-let systemBusy = false;
 
 // ==========================
 // 多音效系統
@@ -114,63 +111,47 @@ const accounts = {
 
 let currentUser = null;
 
+  // 系統忙碌鎖
+let systemBusy = false;
 
-// ==========================
-// 打字輸出
-// ==========================
+// 系統忙碌鎖
+let systemBusy = false;
+
+  
+// 打印單行
 function printLine(text, delay=40){
-
-  systemBusy = true;      // 🔒 上鎖
-  input.disabled = true; // 禁止輸入
-
   return new Promise(resolve=>{
+    systemBusy = true; // 🔒上鎖
 
     let i = 0;
-
     let timer = setInterval(()=>{
-
       term.innerHTML += text[i];
       term.scrollTop = term.scrollHeight;
 
       playTypeSound();
 
       i++;
-
       if(i >= text.length){
-
         clearInterval(timer);
         term.innerHTML += "<br>";
-
-        systemBusy = false;      // 🔓 解鎖
-        input.disabled = false; // 開放輸入
-        input.focus();
-
         resolve();
       }
-
     }, delay);
-
   });
 }
 
 
-// ==========================
-// 多行輸出
-// ==========================
+
+// 打印多行
 async function printLines(lines, delay=40){
-
-  systemBusy = true;
-  input.disabled = true;
-
+  systemBusy = true; // 🔒整段鎖
   for(let line of lines){
     await printLine(line, delay);
   }
-
-  systemBusy = false;
-  input.disabled = false;
+  systemBusy = false; // 🔓解鎖
   input.focus();
-
 }
+
 
 
 // ==========================
@@ -202,42 +183,31 @@ async function boot(){
 boot();
 
 
-// ==========================
-// 鍵盤監聽（修正版）
-// ==========================
-input.addEventListener("keydown", e => {
+// keydown 事件
+input.addEventListener("keydown", e=>{
   // 系統忙碌中 → 禁止操作
   if(systemBusy){
-  e.preventDefault();
-  return;
-}
+    e.preventDefault();
+    return;
+  }
+  
   // 播音效
-  if(
-    e.key.length === 1 ||
-    e.key === "Backspace" ||
-    e.key === "Enter"
-  ){
+  if(e.key.length === 1 || e.key === "Backspace" || e.key === "Enter"){
     playTypeSound();
   }
 
 
+ 
   // Enter
   if(e.key === "Enter"){
-
     e.preventDefault();
-
     const cmd = input.value.trim();
     input.value = "";
-
     if(cmd){
-
-      printLine("> " + cmd, 0);
+      printLine("> " + cmd, 0); // 立即顯示
       handle(cmd);
-
     }
-
   }
-
 });
 
 
