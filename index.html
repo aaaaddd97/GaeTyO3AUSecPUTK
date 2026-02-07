@@ -132,8 +132,11 @@ function printLine(text, delay=40){
         clearInterval(timer);
         term.innerHTML += "<br>";
         resolve();
+        
       }
     }, delay);
+    
+    systemBusy = false; // 🔓解鎖
   });
 }
 
