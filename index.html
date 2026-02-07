@@ -227,7 +227,7 @@ async function login(cmd){
 async function showHelp(){
   if(currentUser.role==="腳本") await printLine("help whoami log status logout");
   if(currentUser.role==="插件") await printLine("help whoami status logout");
-  if(currentUser.role==="插件已損毀") await printLine("help whoami status logout");
+  if(currentUser.role==="插件已損毀") await printLine("插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀 插件已損毀");
   if(currentUser.role==="未知") await printLine("help whoami log status glitch logout");
 }
 
@@ -235,6 +235,12 @@ async function showHelp(){
 // whoami
 // ==========================
 async function whoami(){
+   if(currentUser.role==="插件已損毀")
+    await printLine("插件已損毀"); return;
+    await printLine("插件已損毀"); return;
+    await printLine("插件已損毀"); return;
+    await printLine("插件已損毀"); return;
+    await printLine("插件已損毀"); return;
   await printLines([
     "用戶: " + currentUser.name,
     "權限: " + currentUser.role
@@ -259,6 +265,8 @@ async function showLog(){
 // status
 // ==========================
 async function showStatus(){
+  if(!["腳本已損毀","未知"].includes(currentUser.role)){
+    await printLine("權限不足"); return;
   await printLines([
     "系統穩定中",
     "殘留資料存在",
