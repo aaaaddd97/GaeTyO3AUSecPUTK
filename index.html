@@ -111,8 +111,8 @@ async function printLines(lines, delay=40){
 // 開機動畫
 // ==========================
 const bootLines = [
-  "正在啟動殘留終端機...",
-  "正在載入記憶體模組...",
+  "正在啟動終端機...",
+  "正在載入記憶模組...",
   "正在恢復快取...",
   "偵測到殘留活動...",
   "正在初始化使用者介面...",
@@ -165,7 +165,7 @@ function handle(cmd){
   // 如果還沒登入
   if(!currentUser && !cmd.startsWith("login")){
     printLine("請先登入", 30);
-    printLine("使用login (用戶名)進行登錄", 30);
+    printLine("使用 login (用戶名)進行登錄", 30);
     return;
   }
 
