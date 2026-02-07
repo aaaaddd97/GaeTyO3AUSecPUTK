@@ -165,10 +165,8 @@ function handle(cmd){
   // 如果還沒登入
   if(!currentUser && !cmd.startsWith("login")){
     printLine([
-      "請先登入",
       "使用login 用戶名 進行登錄",
-    ], 30);
-  
+    ],30);
     return;
   }
 
@@ -217,7 +215,7 @@ function login(cmd){
   const parts = cmd.split(" ");
 
   if(parts.length < 2){
-    printLine("Usage: login <username>");
+    printLine("使用login 用戶名 進行登錄");
     return;
   }
 
@@ -249,7 +247,7 @@ function login(cmd){
 
   } else {
 
-    printLine("登錄失敗", 30);
+    printLine("登錄失敗", 50);
 
   }
 }
