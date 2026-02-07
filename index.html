@@ -181,29 +181,40 @@ boot();
 
 
 // keydown 事件
-input.addEventListener("keydown", e=>{
+input.addEventListener("keydown", async e => {
   // 系統忙碌中 → 禁止操作
   if(systemBusy){
     e.preventDefault();
     return;
   }
-  
+
   // 播音效
-  if(e.key.length === 1 || e.key === "Backspace" || e.key === "Enter"){
+  if(e.key.length === 1  e.key === "Backspace" 
+ e.key === "Enter"){
     playTypeSound();
   }
 
-
- 
-  // Enter
   if(e.key === "Enter"){
     e.preventDefault();
     const cmd = input.value.trim();
     input.value = "";
-    if(cmd){
-      printLine("> " + cmd, 0); // 立即顯示
-      handle(cmd);
-    }
+
+    if(!cmd) return;
+
+    // 🔒 上鎖
+    systemBusy = true;
+    input.disabled = true;
+
+    // 顯示命令
+    await printLine("> " + cmd, 0);
+
+    // 執行命令（handle 也改成 async）
+    await handle(cmd);
+
+    // 🔓 解鎖
+    systemBusy = false;
+    input.disabled = false;
+    input.focus();
   }
 });
 
@@ -211,38 +222,27 @@ input.addEventListener("keydown", e=>{
 // ==========================
 // 指令中心
 // ==========================
-function handle(cmd){
-
+async function handle(cmd){
   cmd = cmd.toLowerCase();
 
-
   if(!currentUser && !cmd.startsWith("login")){
-
-    printLine("請先 login 用戶名");
+    await printLine("請先 login 用戶名");
     return;
-
   }
-
 
   if(cmd.startsWith("login")){
-    login(cmd);
+    await login(cmd);
     return;
   }
 
-
   switch(cmd){
-
-    case "help": showHelp(); break;
-    case "whoami": whoami(); break;
-    case "log": showLog(); break;
-    case "status": showStatus(); break;
-    case "logout": logout(); break;
-
-    default:
-      printLine("未知指令");
-
+    case "help": await showHelp(); break;
+    case "whoami": await whoami(); break;
+    case "log": await showLog(); break;
+    case "status": await showStatus(); break;
+    case "logout": await logout(); break;
+    default: await printLine("未知指令"); break;
   }
-
 }
 
 
