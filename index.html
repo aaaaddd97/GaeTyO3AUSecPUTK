@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Residual Terminal</title>
+
 <style>
 body {
   background: black;
@@ -28,175 +29,320 @@ input {
 </head>
 
 <body>
+
+<!-- 顯示文字的終端區 -->
 <div id="terminal"></div>
-<input id="cmd" autofocus />
+
+<!-- 輸入指令的地方 -->
+<input id="cmd" disabled />
 
 <script>
+// ==========================
+// 取得畫面元素
+// ==========================
 const term = document.getElementById("terminal");
 const input = document.getElementById("cmd");
 
-// 打印函數：支援打字延遲
-function printLine(text, delay=50, callback=null) {
-  let i = 0;
-  let lineInterval = setInterval(() => {
-    term.innerHTML += text[i];
-    i++;
-    term.scrollTop = term.scrollHeight;
-    if(i >= text.length) {
-      clearInterval(lineInterval);
-      term.innerHTML += "<br>";
-      if(callback) callback();
-    }
-  }, delay);
+
+// ==========================
+// 使用者帳號資料庫（之後可以一直加）
+// ==========================
+const accounts = {
+  cucumber: {
+    password: "cyxs",   // 密碼
+    role: "player"      // 身分
+  },
+
+  margaret: {
+    password: "rose",
+    role: "support"
+  },
+
+  glitch: {
+    password: "envy",
+    role: "overlap"
+  }
+};
+
+
+// ==========================
+// 目前登入的使用者（預設沒登入）
+// ==========================
+let currentUser = null;
+
+
+// ==========================
+// 打字輸出（支援延遲）
+// ==========================
+function printLine(text, delay=40){
+  return new Promise(resolve=>{
+    let i = 0;
+
+    let timer = setInterval(()=>{
+
+      term.innerHTML += text[i];
+      term.scrollTop = term.scrollHeight;
+
+      i++;
+
+      // 打完就停
+      if(i >= text.length){
+        clearInterval(timer);
+        term.innerHTML += "<br>";
+        resolve();
+      }
+
+    }, delay);
+  });
 }
 
-// 連續打印多行
-function printLines(lines, delay=50, index=0) {
-  if(index >= lines.length) return;
-  printLine(lines[index], delay, () => printLines(lines, delay, index+1));
+
+// ==========================
+// 一次印很多行（會照順序）
+// ==========================
+async function printLines(lines, delay=40){
+  for(let line of lines){
+    await printLine(line, delay);
+  }
 }
 
+
+// ==========================
 // 開機動畫
+// ==========================
 const bootLines = [
-  "正在啟動殘留終端機...",
-  "正在載入記憶體模組...",
-  "正在恢復快取...",
-  "偵測到殘留活動...",
-  "正在初始化使用者介面...",
-  "系統已準備就緒.",
-  "使用者：未知",
-  "輸入help獲取指令列表",
+  "Booting Residual Terminal...",
+  "Loading memory modules...",
+  "Recovering cache...",
+  "Residual activity detected...",
+  "System ready.",
+  "",
+  "Type: login <username>",
   ""
 ];
 
-printLines(bootLines, 40); // 每個字40ms
+async function boot(){
 
-// 指令處理
-input.addEventListener("keydown", e=>{
-  if(e.key==="Enter"){
-    const cmd = input.value.trim();
-    input.value="";
-    if(cmd) printLine("> " + cmd, 0); // 輸入的指令立刻顯示
-    handle(cmd);
-  }
-});
-const accounts = {
-  cucumber: { password: "cyxs", role: "player" },
-  margaret: { password: "rose", role: "support" },
-  glitch: { password: "envy", role: "overlap" }
-};
+  await printLines(bootLines, 40);
 
-let currentUser = null; // 登錄成功後保存角色
-  
-case "login":
-case "login cucumber":
-case "login margaret":
-case "login glitch":
-    loginProcedure(cmd.split(" ")[1]); // 後面接帳號名
-    break;
-
-function loginProcedure(user){
-    if(!accounts[user]){
-        printLine("Unknown user");
-        return;
-    }
-    let pwd = prompt("Enter password for " + user + ":");
-    if(pwd === accounts[user].password){
-        currentUser = accounts[user];
-        printLines([
-            `Login successful.`,
-            `User: ${user}`,
-            `Role: ${currentUser.role}`
-        ], 30);
-    } else {
-        printLine("Incorrect password", 30);
-    }
+  // 開完機才能打字
+  input.disabled = false;
+  input.focus();
 }
-// 指令邏輯
-function handle(cmd){
-  switch(cmd.toLowerCase()){
-    case "help":
-      printLines([
-        "可用指令:",
-        "help - 顯示指令列表",
-        "whoami - 顯示使用者身份",
-        "log - 查看系統日誌",
-        "login - 登入已有帳號",
-        "status - 查看系統狀態"
-      ], 20);
-      break;
 
-      function handle(cmd){
-        if(!currentUser && cmd !== "login"){
-        printLine("Please login first.", 30);
-          return;
+boot();
+
+
+// ==========================
+// Enter鍵送出指令
+// ==========================
+input.addEventListener("keydown", e=>{
+
+  if(e.key === "Enter"){
+
+    const cmd = input.value.trim();
+
+    input.value = "";
+
+    if(cmd){
+      printLine("> " + cmd, 0);
+      handle(cmd);
+    }
+
   }
 
-  switch(cmd.toLowerCase()){
+});
+
+
+// ==========================
+// 指令處理中心（所有指令都走這）
+// ==========================
+function handle(cmd){
+
+  cmd = cmd.toLowerCase();
+
+  // 如果還沒登入
+  if(!currentUser && !cmd.startsWith("login")){
+    printLine("Please login first.", 30);
+    return;
+  }
+
+  // login 指令
+  if(cmd.startsWith("login")){
+    login(cmd);
+    return;
+  }
+
+  // 登入後的指令
+  switch(cmd){
+
     case "help":
-      if(currentUser.role === "player"){
-          printLines(["help, whoami, log, status"], 20);
-      } else if(currentUser.role === "support"){
-          printLines(["help, whoami, status"], 20);
-      } else if(currentUser.role === "overlap"){
-          printLines(["help, whoami, log, status, glitch"], 20);
-      }
+      showHelp();
       break;
 
     case "whoami":
-      printLines([
-        "User: " + getUserName(),
-        "Role: " + currentUser.role
-      ], 30);
+      whoami();
       break;
 
-    case "glitch":
-      if(currentUser.role === "overlap"){
-          printLines(["Accessing residual glitch..."], 30);
-      } else {
-          printLine("Unknown command", 30);
-      }
+    case "log":
+      showLog();
+      break;
+
+    case "status":
+      showStatus();
+      break;
+
+    case "logout":
+      logout();
       break;
 
     default:
       printLine("Unknown command", 30);
   }
 }
-      
-    case "whoami":
-      printLines([
-        "User: 黃芷盈",
-        "Override: 48 75 61 6e 67 20 5a 68 69 79 69 6e 67"
-      ], 30);
-      break;
 
-    case "log":
-      printLines([
-        "【錯誤】 資料已損壞",
-        "【警告】偵測到殘留活動",
-        "【訊息】 主腳本中未發現異常"
-      ], 30);
-      break;
 
-    case "status":
-      printLines([
-        "系統穩定",
-        "覆蓋待定",
-        "殘留腳本處於活動狀態"
-      ], 30);
-      break;
+// ==========================
+// 登入流程
+// ==========================
+function login(cmd){
 
-    default:
-      printLine("未知命令", 30);
+  // 取得帳號名稱
+  // login cucumber → ["login","cucumber"]
+  const parts = cmd.split(" ");
+
+  if(parts.length < 2){
+    printLine("Usage: login <username>");
+    return;
   }
+
+  const username = parts[1];
+
+  // 查帳號是否存在
+  if(!accounts[username]){
+    printLine("User not found");
+    return;
+  }
+
+  // 跳出密碼輸入框
+  const pwd = prompt("Password for " + username);
+
+  // 驗證密碼
+  if(pwd === accounts[username].password){
+
+    currentUser = {
+      name: username,
+      role: accounts[username].role
+    };
+
+    printLines([
+      "Login successful.",
+      "User: " + currentUser.name,
+      "Role: " + currentUser.role,
+      ""
+    ],30);
+
+  } else {
+
+    printLine("Login failed", 30);
+
+  }
+}
+
+
+// ==========================
+// 顯示 help（依權限不同）
+// ==========================
+function showHelp(){
+
+  if(currentUser.role === "player"){
+
+    printLines([
+      "help, whoami, log, status, logout"
+    ],20);
+
+  }
+
+  if(currentUser.role === "support"){
+
+    printLines([
+      "help, whoami, status, logout"
+    ],20);
+
+  }
+
+  if(currentUser.role === "overlap"){
+
+    printLines([
+      "help, whoami, log, status, glitch, logout"
+    ],20);
+
+  }
+}
+
+
+// ==========================
+// 顯示身分
+// ==========================
+function whoami(){
+
+  printLines([
+    "User: " + currentUser.name,
+    "Role: " + currentUser.role
+  ],30);
+
+}
+
+
+// ==========================
+// 日誌（只有部分角色能看）
+// ==========================
+function showLog(){
+
+  if(currentUser.role !== "player" &&
+     currentUser.role !== "overlap"){
+
+    printLine("Permission denied");
+    return;
+  }
+
+  printLines([
+    "[ERROR] Memory leak",
+    "[WARNING] Residual activity",
+    "[INFO] Script running"
+  ],30);
+
+}
+
+
+// ==========================
+// 狀態
+// ==========================
+function showStatus(){
+
+  printLines([
+    "System: Stable",
+    "Residual: Active",
+    "Override: Pending"
+  ],30);
+
+}
+
+
+// ==========================
+// 登出
+// ==========================
+function logout(){
+
+  currentUser = null;
+
+  printLines([
+    "User logged out.",
+    "Type: login <username>",
+    ""
+  ],30);
+
 }
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
