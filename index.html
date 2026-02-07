@@ -74,9 +74,9 @@ function playTypeSound(){
 // 帳號
 // ==========================
 const accounts = {
-  cucumber:{ password:"cyxs", role:"player" },
-  margaret:{ password:"rose", role:"support" },
-  glitch:{ password:"envy", role:"overlap" }
+  "y3l_cu._":{ password:"Pride", role:"腳本" },
+  "shield.of.hervia":{ password:"order", role:"插件" },
+  "glitch":{ password:"envy", role:"未知" }
 };
 
 let currentUser = null;
@@ -176,7 +176,7 @@ async function handle(cmd){
   cmd = cmd.toLowerCase();
 
   if(!currentUser && !cmd.startsWith("login")){
-    await printLine("請先 login 用戶名");
+    await printLine("請使用 login 進行登錄");
     return;
   }
 
@@ -203,7 +203,7 @@ async function login(cmd){
   if(parts.length<2){ await printLine("用法: login 用戶名"); return; }
 
   const name = parts[1];
-  if(!accounts[name]){ await printLine("無此帳號"); return; }
+  if(!accounts[name]){ await printLine("未知帳號"); return; }
 
   const pwd = prompt("輸入密碼");
 
@@ -224,9 +224,9 @@ async function login(cmd){
 // help
 // ==========================
 async function showHelp(){
-  if(currentUser.role==="player") await printLine("help whoami log status logout");
-  if(currentUser.role==="support") await printLine("help whoami status logout");
-  if(currentUser.role==="overlap") await printLine("help whoami log status glitch logout");
+  if(currentUser.role==="腳本") await printLine("help whoami log status logout");
+  if(currentUser.role==="插件") await printLine("help whoami status logout");
+  if(currentUser.role==="未知") await printLine("help whoami log status glitch logout");
 }
 
 // ==========================
@@ -243,7 +243,7 @@ async function whoami(){
 // log
 // ==========================
 async function showLog(){
-  if(!["player","overlap"].includes(currentUser.role)){
+  if(!["腳本","未知"].includes(currentUser.role)){
     await printLine("權限不足"); return;
   }
   await printLines([
