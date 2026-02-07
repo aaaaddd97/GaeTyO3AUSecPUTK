@@ -100,7 +100,7 @@ function printLine(text, delay=40){
 // ==========================
 // 一次印很多行（會照順序）
 // ==========================
-async function printLines(lines, delay=40){
+async function printLines(lines, delay=50){
   for(let line of lines){
     await printLine(line, delay);
   }
