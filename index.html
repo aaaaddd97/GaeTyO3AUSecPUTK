@@ -265,7 +265,7 @@ async function showLog(){
 // status
 // ==========================
 async function showStatus(){
-  if(!["腳本已損毀","未知"].includes(currentUser.role)){
+  if(currentUser.role==="插件已損毀")
     await printLine("權限不足"); return;
   await printLines([
     "系統穩定中",
