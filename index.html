@@ -100,8 +100,12 @@ function printLine(text, delay=40){
 // ==========================
 // 一次印很多行（會照順序）
 // ==========================
-
-
+  
+async function printLines(lines, delay=50){
+  for(let line of lines){
+    await printLine(line, delay);
+  }
+}
 
 // ==========================
 // 開機動畫
@@ -160,8 +164,10 @@ function handle(cmd){
 
   // 如果還沒登入
   if(!currentUser && !cmd.startsWith("login")){
-    printLine("請先登入", 30);
-    printLine("使用login 用戶名 進行登錄", 30);
+    printLine([
+      "請先登入",
+      "使用login 用戶名 進行登錄"
+    ], 30);
   
     return;
   }
