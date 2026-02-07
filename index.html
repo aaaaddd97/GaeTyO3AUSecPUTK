@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>Residual Terminal</title>
-
 <style>
 body {
   background: black;
@@ -27,14 +26,12 @@ input {
 }
 </style>
 </head>
-
 <body>
 
 <div id="terminal"></div>
 <input id="cmd" disabled />
 
 <script>
-
 // ==========================
 // 元素
 // ==========================
@@ -46,7 +43,6 @@ const input = document.getElementById("cmd");
 // ==========================
 let soundUnlocked = false;
 
-// 建立音效池
 const typeSounds = [
   new Audio("type1.mp3"),
   new Audio("type2.mp3"),
@@ -55,58 +51,32 @@ const typeSounds = [
   new Audio("type5.mp3")
 ];
 
-// 統一音量
-typeSounds.forEach(s=>{
-  s.volume = 0.15;
-});
+typeSounds.forEach(s => s.volume = 0.15);
 
-// 解鎖聲音（一定要）
 document.addEventListener("click", unlockSound, { once:true });
 document.addEventListener("keydown", unlockSound, { once:true });
 
 function unlockSound(){
-
   if(soundUnlocked) return;
-
-  // 解鎖所有音效
-  Promise.all(
-    typeSounds.map(s=>s.play().then(()=>{
-      s.pause();
-      s.currentTime = 0;
-    }).catch(()=>{}))
-  ).then(()=>{
-
-    soundUnlocked = true;
-
-  });
-
+  Promise.all(typeSounds.map(s => s.play().then(()=>{
+    s.pause(); s.currentTime=0;
+  }).catch(()=>{}))).then(()=>{ soundUnlocked = true; });
 }
 
-
-// 播聲音統一走這
 function playTypeSound(){
-
   if(!soundUnlocked) return;
-
-  // 隨機選一個音效
-  const s = typeSounds[
-    Math.floor(Math.random()*typeSounds.length)
-  ];
-
+  const s = typeSounds[Math.floor(Math.random()*typeSounds.length)];
   s.currentTime = 0;
   s.play().catch(()=>{});
-
 }
 
 // ==========================
 // 帳號
 // ==========================
 const accounts = {
-
   cucumber:{ password:"cyxs", role:"player" },
   margaret:{ password:"rose", role:"support" },
   glitch:{ password:"envy", role:"overlap" }
-
 };
 
 let currentUser = null;
@@ -114,17 +84,16 @@ let currentUser = null;
 // 系統忙碌鎖
 let systemBusy = false;
 
-  
-// 打印單行，不負責解鎖
+// ==========================
+// 打印單行
+// ==========================
 function printLine(text, delay=40){
   return new Promise(resolve=>{
     let i = 0;
     let timer = setInterval(()=>{
       term.innerHTML += text[i];
       term.scrollTop = term.scrollHeight;
-
       playTypeSound();
-
       i++;
       if(i >= text.length){
         clearInterval(timer);
@@ -135,27 +104,24 @@ function printLine(text, delay=40){
   });
 }
 
-// 打印多行，負責解鎖
+// ==========================
+// 打印多行
+// ==========================
 async function printLines(lines, delay=40){
-  systemBusy = true;    // 🔒 上鎖
+  systemBusy = true;
   input.disabled = true;
-
   for(let line of lines){
     await printLine(line, delay);
   }
-
-  systemBusy = false;   // 🔓 解鎖
+  systemBusy = false;
   input.disabled = false;
   input.focus();
 }
-
-
 
 // ==========================
 // 開機
 // ==========================
 const bootLines = [
-
   "正在啟動終端機...",
   "正在載入記憶模組...",
   "正在恢復快取...",
@@ -165,59 +131,43 @@ const bootLines = [
   "使用者：未知",
   "輸入 help 獲取指令列表",
   ""
-
 ];
 
 async function boot(){
-
   await printLines(bootLines,40);
-
   input.disabled = false;
   input.focus();
-
 }
 
 boot();
 
-
+// ==========================
 // keydown 事件
-input.addEventListener("keydown", async e => {
-  // 系統忙碌中 → 禁止操作
-  if(systemBusy){
-    e.preventDefault();
-    return;
-  }
+// ==========================
+input.addEventListener("keydown", async e=>{
+  if(systemBusy){ e.preventDefault(); return; }
 
-  // 播音效
-  if(e.key.length === 1  e.key === "Backspace" 
- e.key === "Enter"){
+  if(e.key.length===1 || e.key==="Backspace" || e.key==="Enter"){
     playTypeSound();
   }
 
-  if(e.key === "Enter"){
+  if(e.key==="Enter"){
     e.preventDefault();
     const cmd = input.value.trim();
     input.value = "";
-
     if(!cmd) return;
 
-    // 🔒 上鎖
     systemBusy = true;
     input.disabled = true;
 
-    // 顯示命令
     await printLine("> " + cmd, 0);
-
-    // 執行命令（handle 也改成 async）
     await handle(cmd);
 
-    // 🔓 解鎖
     systemBusy = false;
     input.disabled = false;
     input.focus();
   }
 });
-
 
 // ==========================
 // 指令中心
@@ -245,142 +195,83 @@ async function handle(cmd){
   }
 }
 
-
 // ==========================
 // 登入
 // ==========================
-function login(cmd){
-
+async function login(cmd){
   const parts = cmd.split(" ");
-
-  if(parts.length < 2){
-    printLine("用法: login 用戶名");
-    return;
-  }
+  if(parts.length<2){ await printLine("用法: login 用戶名"); return; }
 
   const name = parts[1];
-
-
-  if(!accounts[name]){
-    printLine("無此帳號");
-    return;
-  }
-
+  if(!accounts[name]){ await printLine("無此帳號"); return; }
 
   const pwd = prompt("輸入密碼");
 
-
-  if(pwd === accounts[name].password){
-
-    currentUser = {
-      name,
-      role: accounts[name].role
-    };
-
-    printLines([
+  if(pwd===accounts[name].password){
+    currentUser = { name, role: accounts[name].role };
+    await printLines([
       "登入成功",
       "用戶: " + name,
       "權限: " + currentUser.role,
       ""
     ],60);
-
   }else{
-
-    printLine("密碼錯誤");
-
+    await printLine("密碼錯誤");
   }
-
 }
-
 
 // ==========================
 // help
 // ==========================
-function showHelp(){
-
-  if(currentUser.role === "player"){
-
-    printLine("help whoami log status logout");
-
-  }
-
-  if(currentUser.role === "support"){
-
-    printLine("help whoami status logout");
-
-  }
-
-  if(currentUser.role === "overlap"){
-
-    printLine("help whoami log status glitch logout");
-
-  }
-
+async function showHelp(){
+  if(currentUser.role==="player") await printLine("help whoami log status logout");
+  if(currentUser.role==="support") await printLine("help whoami status logout");
+  if(currentUser.role==="overlap") await printLine("help whoami log status glitch logout");
 }
-
 
 // ==========================
 // whoami
 // ==========================
-function whoami(){
-
-  printLines([
+async function whoami(){
+  await printLines([
     "用戶: " + currentUser.name,
     "權限: " + currentUser.role
   ],40);
-
 }
-
 
 // ==========================
 // log
 // ==========================
-function showLog(){
-
+async function showLog(){
   if(!["player","overlap"].includes(currentUser.role)){
-
-    printLine("權限不足");
-    return;
-
+    await printLine("權限不足"); return;
   }
-
-  printLines([
+  await printLines([
     "[ERROR] 記憶體洩漏",
     "[WARN] 檔案未格式化",
     "[INFO] 腳本運行中"
   ],40);
-
 }
-
 
 // ==========================
 // status
 // ==========================
-function showStatus(){
-
-  printLines([
+async function showStatus(){
+  await printLines([
     "系統穩定中",
     "殘留資料存在",
     "覆蓋準備中"
   ],40);
-
 }
-
 
 // ==========================
 // logout
 // ==========================
-function logout(){
-
+async function logout(){
   currentUser = null;
-
-  printLines([
-    "已登出",
-    ""
-  ],40);
-
+  await printLines(["已登出",""],40);
 }
-
 </script>
 </body>
 </html>
+
