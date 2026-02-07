@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Residual Terminal</title>
+<style>
+body {
+  background: black;
+  color: #9f7cff;
+  font-family: monospace;
+  padding: 20px;
+}
+
+#terminal {
+  white-space: pre-wrap;
+  min-height: 400px;
+}
+
+input {
+  background: black;
+  color: #9f7cff;
+  border: none;
+  outline: none;
+  width: 100%;
+  font-family: monospace;
+}
+</style>
+</head>
+
+<body>
+<div id="terminal"></div>
+<input id="cmd" autofocus />
+
+<script>
+const term = document.getElementById("terminal");
+const input = document.getElementById("cmd");
+
+// 打印函數：支援打字延遲
+function printLine(text, delay=50, callback=null) {
+  let i = 0;
+  let lineInterval = setInterval(() => {
+    term.innerHTML += text[i];
+    i++;
+    term.scrollTop = term.scrollHeight;
+    if(i >= text.length) {
+      clearInterval(lineInterval);
+      term.innerHTML += "<br>";
+      if(callback) callback();
+    }
+  }, delay);
+}
+
+// 連續打印多行
+function printLines(lines, delay=50, index=0) {
+  if(index >= lines.length) return;
+  printLine(lines[index], delay, () => printLines(lines, delay, index+1));
+}
+
+// 開機動畫
+const bootLines = [
+  "正在啟動殘留終端機...",
+  "正在載入記憶體模組...",
+  "正在恢復快取...",
+  "偵測到殘留活動...",
+  "正在初始化使用者介面...",
+  "系統已準備就緒.",
+  "使用者：未知",
+  "輸入help獲取指令列表",
+  ""
+];
+
+printLines(bootLines, 40); // 每個字40ms
+
+// 指令處理
+input.addEventListener("keydown", e=>{
+  if(e.key==="Enter"){
+    const cmd = input.value.trim();
+    input.value="";
+    if(cmd) printLine("> " + cmd, 0); // 輸入的指令立刻顯示
+    handle(cmd);
+  }
+});
+const accounts = {
+  cucumber: { password: "cyxs", role: "player" },
+  margaret: { password: "rose", role: "support" },
+  glitch: { password: "envy", role: "overlap" }
+};
+
+let currentUser = null; // 登錄成功後保存角色
+  
+case "login":
+case "login cucumber":
+case "login margaret":
+case "login glitch":
+    loginProcedure(cmd.split(" ")[1]); // 後面接帳號名
+    break;
+
+function loginProcedure(user){
+    if(!accounts[user]){
+        printLine("Unknown user");
+        return;
+    }
+    let pwd = prompt("Enter password for " + user + ":");
+    if(pwd === accounts[user].password){
+        currentUser = accounts[user];
+        printLines([
+            `Login successful.`,
+            `User: ${user}`,
+            `Role: ${currentUser.role}`
+        ], 30);
+    } else {
+        printLine("Incorrect password", 30);
+    }
+}
+// 指令邏輯
+function handle(cmd){
+  switch(cmd.toLowerCase()){
+    case "help":
+      printLines([
+        "可用指令:",
+        "help - 顯示指令列表",
+        "whoami - 顯示使用者身份",
+        "log - 查看系統日誌",
+        "login - 登入已有帳號",
+        "status - 查看系統狀態"
+      ], 20);
+      break;
+
+      function handle(cmd){
+        if(!currentUser && cmd !== "login"){
+        printLine("Please login first.", 30);
+          return;
+  }
+
+  switch(cmd.toLowerCase()){
+    case "help":
+      if(currentUser.role === "player"){
+          printLines(["help, whoami, log, status"], 20);
+      } else if(currentUser.role === "support"){
+          printLines(["help, whoami, status"], 20);
+      } else if(currentUser.role === "overlap"){
+          printLines(["help, whoami, log, status, glitch"], 20);
+      }
+      break;
+
+    case "whoami":
+      printLines([
+        "User: " + getUserName(),
+        "Role: " + currentUser.role
+      ], 30);
+      break;
+
+    case "glitch":
+      if(currentUser.role === "overlap"){
+          printLines(["Accessing residual glitch..."], 30);
+      } else {
+          printLine("Unknown command", 30);
+      }
+      break;
+
+    default:
+      printLine("Unknown command", 30);
+  }
+}
+      
+    case "whoami":
+      printLines([
+        "User: 黃芷盈",
+        "Override: 48 75 61 6e 67 20 5a 68 69 79 69 6e 67"
+      ], 30);
+      break;
+
+    case "log":
+      printLines([
+        "【錯誤】 資料已損壞",
+        "【警告】偵測到殘留活動",
+        "【訊息】 主腳本中未發現異常"
+      ], 30);
+      break;
+
+    case "status":
+      printLines([
+        "系統穩定",
+        "覆蓋待定",
+        "殘留腳本處於活動狀態"
+      ], 30);
+      break;
+
+    default:
+      printLine("未知命令", 30);
+  }
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
