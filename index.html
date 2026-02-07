@@ -115,11 +115,9 @@ let currentUser = null;
 let systemBusy = false;
 
   
-// 打印單行
+// 打印單行，不負責解鎖
 function printLine(text, delay=40){
   return new Promise(resolve=>{
-    systemBusy = true; // 🔒上鎖
-
     let i = 0;
     let timer = setInterval(()=>{
       term.innerHTML += text[i];
@@ -132,23 +130,22 @@ function printLine(text, delay=40){
         clearInterval(timer);
         term.innerHTML += "<br>";
         resolve();
-        
       }
     }, delay);
-    
-    systemBusy = false; // 🔓解鎖
   });
 }
 
-
-
-// 打印多行
+// 打印多行，負責解鎖
 async function printLines(lines, delay=40){
-  systemBusy = true; // 🔒整段鎖
+  systemBusy = true;    // 🔒 上鎖
+  input.disabled = true;
+
   for(let line of lines){
     await printLine(line, delay);
   }
-  systemBusy = false; // 🔓解鎖
+
+  systemBusy = false;   // 🔓 解鎖
+  input.disabled = false;
   input.focus();
 }
 
