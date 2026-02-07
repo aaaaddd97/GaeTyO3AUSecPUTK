@@ -150,8 +150,8 @@ nput.addEventListener("keydown", e=>{
 
   // 每次按鍵都播放音效（不含 Shift / Ctrl）
   if(
-    e.key.length === 1  
-    e.key === "Backspace" 
+    e.key.length === 1  ||
+    e.key === "Backspace" ||
     e.key === "Enter"
   ){
     typeSound.currentTime = 0;
