@@ -320,7 +320,7 @@ async function logout(){
     diff -= minutes * (1000*60);
     const seconds = Math.floor(diff / 1000);
 
-    countdownEl.textContent = `${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
+    countdownEl.textContent = `${days}日 ${hours}時 ${minutes}分 ${seconds}秒`;
   }
 
   // 每秒更新
