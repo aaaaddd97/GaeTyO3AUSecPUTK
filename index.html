@@ -4,6 +4,28 @@
 <meta charset="UTF-8">
 <title>Residual Terminal</title>
 <style>
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 3px #9f7cff;
+    opacity: 0.6;
+  }
+
+  50% {
+    box-shadow: 0 0 10px #bfa9ff;
+    opacity: 1;
+  }
+
+  100% {
+    box-shadow: 0 0 3px #9f7cff;
+    opacity: 0.6;
+  }
+}
+
+
+.input-glow {
+  animation: glow 1.6s infinite ease-in-out;
+}
   #countdown {
   position: fixed;
   top: 15px;
@@ -60,7 +82,8 @@ input {
 </div>
 <div id="countdown"></div>
 <div id="terminal"></div>
-<input id="cmd" disabled />
+<input id="cmd" disabled 
+class="input-glow"/>
 
 <script>
 // ==========================
@@ -142,11 +165,13 @@ function printLine(text, delay=40){
 async function printLines(lines, delay=40){
   systemBusy = true;
   input.disabled = true;
+  input.classList.remove("input-glow");
   for(let line of lines){
     await printLine(line, delay);
   }
   systemBusy = false;
   input.disabled = false;
+   input.classList.add("input-glow");
   input.focus();
 }
 
@@ -168,6 +193,7 @@ const bootLines = [
 async function boot(){
   await printLines(bootLines,40);
   input.disabled = false;
+   input.classList.add("input-glow");
   input.focus();
 }
 
