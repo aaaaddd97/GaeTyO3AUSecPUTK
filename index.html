@@ -266,13 +266,13 @@ async function showHelp(){
 // whoami
 // ==========================
 async function whoami(){
-   if(currentUser.role==="插件已損毀")}
+   if(currentUser.role==="插件已損毀"){
     await printLine("插件已損毀"); return;
     await printLine("插件已損毀"); return;
     await printLine("插件已損毀"); return;
     await printLine("插件已損毀"); return;
     await printLine("插件已損毀"); return;
-  {
+   }
   await printLines([
     "用戶: " + currentUser.name,
     "權限: " + currentUser.role
@@ -297,9 +297,9 @@ async function showLog(){
 // status
 // ==========================
 async function showStatus(){
-  if(currentUser.role==="插件已損毀")}
+  if(currentUser.role==="插件已損毀"){
     await printLine("權限不足"); return;
-  {
+  }
   await printLines([
     "系統穩定中",
     "殘留資料存在",
