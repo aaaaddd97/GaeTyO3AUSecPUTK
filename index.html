@@ -4,6 +4,22 @@
 <meta charset="UTF-8">
 <title>Residual Terminal</title>
 <style>
+  #countdown {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+
+  color: #9f7cff;
+  font-family: monospace;
+  font-size: 14px;
+  opacity: 0.8;
+
+  border: 1px solid #9f7cff;
+  padding: 6px 10px;
+  background: rgba(0,0,0,0.6);
+
+  letter-spacing: 1px;
+}
 body {
   background: black;
   color: #9f7cff;
@@ -27,7 +43,7 @@ input {
 </style>
 </head>
 <body>
-
+<div id="countdown"></div>
 <div id="terminal"></div>
 <input id="cmd" disabled />
 
@@ -69,63 +85,7 @@ function playTypeSound(){
   s.currentTime = 0;
   s.play().catch(()=>{});
 }
-// ==========================
-// 全球統一倒數系統
-// ==========================
 
-// ⚠️ 設定官方結束時間（台灣時間 UTC+8）
-const END_TIME = new Date("2026-03-01T23:59:59+08:00").getTime();
-
-
-// 計算剩餘時間
-function getRemain(){
-
-  let diff = END_TIME - Date.now();
-
-  if(diff < 0) diff = 0;
-
-  const days = Math.floor(diff / 86400000);
-  diff %= 86400000;
-
-  const hours = Math.floor(diff / 3600000);
-  diff %= 3600000;
-
-  const mins = Math.floor(diff / 60000);
-  diff %= 60000;
-
-  const secs = Math.floor(diff / 1000);
-
-  return { days, hours, mins, secs };
-}
-
-
-// 顯示倒數
-async function showCountdown(){
-
-  const t = getRemain();
-
-  if(Date.now() >= END_TIME){
-
-    await printLines([
-      "=== 觀測終止 ===",
-      "審議結束",
-      "執行已確認",
-      "記錄封存",
-      ""
-    ],50);
-
-    return;
-  }
-
-  await printLines([
-    "=== 時管局主倒數 ===",
-    剩餘天數: ${t.days} 天,
-    剩餘時間: ${t.hours}:${t.mins}:${t.secs},
-    "狀態: 最終審議中",
-    ""
-  ],40);
-
-}
 // ==========================
 // 帳號
 // ==========================
@@ -337,6 +297,55 @@ async function logout(){
   currentUser = null;
   await printLines(["已登出",""],40);
 }
+// ==========================
+// 全域倒數系統
+// ==========================
+
+// ⚠️ 改這個時間 = 活動結束時間
+// 格式：年, 月-1, 日, 時, 分, 秒
+const END_TIME = new Date(2026, 2, 13, 23, 59, 59);
+// 2026/03/13 23:59:59
+
+const countdownBox = document.getElementById("countdown");
+
+function updateCountdown(){
+
+  const now = new Date().getTime();
+  const end = END_TIME.getTime();
+
+  let diff = end - now;
+
+  // 結束後
+  if(diff <= 0){
+
+    countdownBox.innerHTML =
+      "FINAL PHASE<br>SYSTEM OVERRIDE";
+
+    return;
+  }
+
+  // 計算時間
+  const days = Math.floor(diff / (1000606024));
+  const hours = Math.floor((diff / (10006060)) % 24);
+  const mins = Math.floor((diff / (100060)) % 60);
+  const secs = Math.floor((diff / 1000) % 60);
+
+  // 補0
+  const pad = n => n.toString().padStart(2,"0");
+
+  countdownBox.innerHTML =
+    "COUNTDOWN<br>" +
+    days + "D " +
+    pad(hours) + ":" +
+    pad(mins) + ":" +
+    pad(secs);
+}
+
+
+// 每秒更新
+setInterval(updateCountdown, 1000);
+updateCountdown();
+
 </script>
 </body>
 </html>
