@@ -297,54 +297,35 @@ async function logout(){
   currentUser = null;
   await printLines(["已登出",""],40);
 }
-// ==========================
-// 全域倒數系統
-// ==========================
+ // 結束時間：2026年3月13日 23:59:59
+  const END_TIME = new Date(2026, 2, 13, 23, 59, 59); // 月份 0~11
 
-// ⚠️ 改這個時間 = 活動結束時間
-// 格式：年, 月-1, 日, 時, 分, 秒
-const END_TIME = new Date(2026, 30, 13, 23, 59, 59);
-// 2026/03/13 23:59:59
+  const countdownEl = document.getElementById("countdown");
 
-const countdownBox = document.getElementById("countdown");
+  function updateCountdown() {
+    const now = new Date();
+    let diff = END_TIME - now; // 毫秒
 
-function updateCountdown(){
+    if(diff <= 0){
+      countdownEl.textContent = "劇情已結束";
+      clearInterval(timer);
+      return;
+    }
 
-  const now = new Date().getTime();
-  const end = END_TIME.getTime();
+    const days = Math.floor(diff / (1000*60*60*24));
+    diff -= days * (1000*60*60*24);
+    const hours = Math.floor(diff / (1000*60*60));
+    diff -= hours * (1000*60*60);
+    const minutes = Math.floor(diff / (1000*60));
+    diff -= minutes * (1000*60);
+    const seconds = Math.floor(diff / 1000);
 
-  let diff = end - now;
-
-  // 結束後
-  if(diff <= 0){
-
-    countdownBox.innerHTML =
-      "FINAL PHASE<br>SYSTEM OVERRIDE";
-
-    return;
+    countdownEl.textContent = `${days}天 ${hours}時 ${minutes}分 ${seconds}秒`;
   }
 
-  // 計算時間
-  const days = Math.floor(diff / (1000606024));
-  const hours = Math.floor((diff / (10006060)) % 24);
-  const mins = Math.floor((diff / (100060)) % 60);
-  const secs = Math.floor((diff / 1000) % 60);
-
-  // 補0
-  const pad = n => n.toString().padStart(2,"0");
-
-  countdownBox.innerHTML =
-    "倒數<br>" +
-    days + "日 " +
-    pad(hours) + "時" +
-    pad(mins) + "分" +
-    pad(secs) + "秒";
-}
-
-
-// 每秒更新
-setInterval(updateCountdown, 1000);
-updateCountdown();
+  // 每秒更新
+  updateCountdown(); // 先執行一次
+  const timer = setInterval(updateCountdown, 1000);
 
 </script>
 </body>
