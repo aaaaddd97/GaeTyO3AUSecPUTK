@@ -69,7 +69,63 @@ function playTypeSound(){
   s.currentTime = 0;
   s.play().catch(()=>{});
 }
+// ==========================
+// 全球統一倒數系統
+// ==========================
 
+// ⚠️ 設定官方結束時間（台灣時間 UTC+8）
+const END_TIME = new Date("2026-03-01T23:59:59+08:00").getTime();
+
+
+// 計算剩餘時間
+function getRemain(){
+
+  let diff = END_TIME - Date.now();
+
+  if(diff < 0) diff = 0;
+
+  const days = Math.floor(diff / 86400000);
+  diff %= 86400000;
+
+  const hours = Math.floor(diff / 3600000);
+  diff %= 3600000;
+
+  const mins = Math.floor(diff / 60000);
+  diff %= 60000;
+
+  const secs = Math.floor(diff / 1000);
+
+  return { days, hours, mins, secs };
+}
+
+
+// 顯示倒數
+async function showCountdown(){
+
+  const t = getRemain();
+
+  if(Date.now() >= END_TIME){
+
+    await printLines([
+      "=== 觀測終止 ===",
+      "審議結束",
+      "執行已確認",
+      "記錄封存",
+      ""
+    ],50);
+
+    return;
+  }
+
+  await printLines([
+    "=== 時管局主倒數 ===",
+    剩餘天數: ${t.days} 天,
+    剩餘時間: ${t.hours}:${t.mins}:${t.secs},
+    "狀態: 最終審議中",
+    ""
+  ],40);
+
+}
 // ==========================
 // 帳號
 // ==========================
